@@ -57,6 +57,7 @@ public class UserRepositoryJpaImpl implements UserRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> findAll() {
         return entityManager
                 .createQuery("select u from User u", User.class)

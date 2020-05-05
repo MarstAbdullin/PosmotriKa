@@ -2,9 +2,13 @@ package posmotriKa.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.instrument.classloading.ReflectiveLoadTimeWeaver;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -18,6 +22,7 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
+import posmotriKa.scope.CustomBeanFactoryPostProcessor;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -26,6 +31,8 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(basePackages = "posmotriKa")
 @EnableTransactionManagement
+@EnableAspectJAutoProxy
+@EnableJpaRepositories
 public class ApplicationContextConfig {
 
     @Bean
@@ -33,18 +40,22 @@ public class ApplicationContextConfig {
         return new BCryptPasswordEncoder();
     }
 
+
+
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        // создаем адаптер, который позволит Hibernate работать с Spring Data Jpa
-        HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-        hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
-        // создали фабрику EntityManager как Spring-бин
-        LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
-        entityManagerFactory.setDataSource(hikariDataSource());
-        entityManagerFactory.setPackagesToScan("posmotriKa");
-        entityManagerFactory.setJpaVendorAdapter(hibernateJpaVendorAdapter);
-        entityManagerFactory.setJpaProperties(additionalProperties());
-        return entityManagerFactory;
+    public EntityManagerFactory entityManagerFactory() {
+        final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setGenerateDdl(Boolean.TRUE);
+        vendorAdapter.setShowSql(Boolean.FALSE);
+
+        final LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setDataSource(hikariDataSource());
+        factory.setPackagesToScan("posmotriKa");
+        factory.setJpaVendorAdapter(vendorAdapter);
+        factory.setJpaProperties(additionalProperties());
+        factory.afterPropertiesSet();
+        factory.setLoadTimeWeaver(new ReflectiveLoadTimeWeaver());
+        return factory.getObject();
     }
 
     @Bean
@@ -112,5 +123,10 @@ public class ApplicationContextConfig {
         resolver.setSuffix(".ftlh");
         resolver.setOrder(0);
         return resolver;
+    }
+
+    @Bean
+    public static BeanFactoryPostProcessor beanFactoryPostProcessor(){
+        return  new CustomBeanFactoryPostProcessor();
     }
 }

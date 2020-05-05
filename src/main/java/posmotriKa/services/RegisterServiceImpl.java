@@ -3,6 +3,7 @@ package posmotriKa.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 import posmotriKa.dto.RegisterDto;
 import posmotriKa.models.User;
 import posmotriKa.models.UserInfo;
@@ -14,15 +15,13 @@ import posmotriKa.repositories.UserRepository;
 public class RegisterServiceImpl implements RegisterService {
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private UserInfoRepository userInfoRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @RequestScope
     public void register(RegisterDto form) {
         User user = User.builder()
                 .email(form.getEmail())
