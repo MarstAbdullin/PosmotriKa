@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
-import posmotriKa.dto.RegisterDto;
+import posmotriKa.dto.RegisterForm;
 import posmotriKa.models.User;
 import posmotriKa.models.UserInfo;
 import posmotriKa.repositories.UserInfoRepository;
-import posmotriKa.repositories.UserRepository;
 
 
 @Service
@@ -22,7 +21,7 @@ public class RegisterServiceImpl implements RegisterService {
 
     @Override
     @RequestScope
-    public void register(RegisterDto form) {
+    public void register(RegisterForm form) {
         User user = User.builder()
                 .email(form.getEmail())
                 .hash(passwordEncoder.encode(form.getPassword()))

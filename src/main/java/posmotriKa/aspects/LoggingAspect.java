@@ -27,6 +27,7 @@ public class LoggingAspect {
                 .map(a -> a.toString())
                 .collect(Collectors.joining(","));
         logger.info("before " + jp.toString() + ", args=[" + args + "]");
+        System.out.println("hi");
     }
 
     @After("callAtMyServicePublic()")

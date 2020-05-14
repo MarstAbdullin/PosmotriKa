@@ -20,11 +20,8 @@ public class CustomDayFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        String agent = httpRequest.getHeader("X-Request-Start");
-        Long unixTime = Long.getLong(agent);
-        Date date = new java.util.Date(unixTime*1000L);
-        Integer hour = date.getHours();
-        if (hour<=21 && hour>=6) {
+        String userAgent = httpRequest.getHeader("User-Agent");
+        if (userAgent.contains("Chrome") || userAgent.contains("Mozilla")) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             throw new IllegalArgumentException();

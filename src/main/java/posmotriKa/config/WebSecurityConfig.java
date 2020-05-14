@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import posmotriKa.security.CustomDayFilter;
 
 @EnableWebSecurity
@@ -26,12 +28,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private PersistentTokenRepository persistentTokenRepository;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http.addFilterAfter(new CustomDayFilter(), FilterSecurityInterceptor.class);
-
-        http.csrf().disable();
 
         http.authorizeRequests().antMatchers("/").permitAll();
 
@@ -43,8 +46,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("password")
                 .defaultSuccessUrl("/profile")
                 .failureUrl("/login?error")
-                .permitAll();
+                .permitAll()
+                .and()
+                .rememberMe().rememberMeParameter("remember-me").tokenRepository(persistentTokenRepository);
 
+        http.logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login")
+                .deleteCookies("JSESSIONID", "remember-me")
+                .invalidateHttpSession(true);
     }
 
     @Autowired

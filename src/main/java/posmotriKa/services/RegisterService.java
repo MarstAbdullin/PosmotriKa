@@ -1,7 +1,7 @@
 package posmotriKa.services;
 
-import posmotriKa.dto.RegisterDto;
+import posmotriKa.dto.RegisterForm;
 
 public interface RegisterService {
-    void register(RegisterDto form);
+    void register(RegisterForm form);
 }

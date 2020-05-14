@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!doctype html>
 <html>
 <head>
     <title>Title</title>
@@ -12,7 +12,12 @@
         <br>
         <input type="password" name="password" placeholder="Password">
         <br>
-        <input type="submit">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <br>
+        <label>
+            <input type="checkbox" name="remember me">Запомни меня пж
+        </label>
+        <input type="submit" value="Хотю зайти">
     </form>
 </div>
 </body>
